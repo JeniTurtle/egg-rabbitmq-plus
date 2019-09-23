@@ -1,0 +1,42 @@
+{
+  "name": "egg-rabbitmq-plus",
+  "version": "1.0.7",
+  "description": "rabbitmq plgin for egg.js",
+  "eggPlugin": {
+    "name": "rabbitmq"
+  },
+  "keywords": [
+    "egg",
+    "eggPlugin",
+    "egg-plugin"
+  ],
+  "files": [
+    "typing/index.d.ts",
+    "config/config.default.js",
+    "app.js",
+    "index.js",
+    "loader.js",
+    "rabbitmq.js",
+    "baseConsumer.js"
+  ],
+  "types": "./typing/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@types/amqplib": "^0.5.13",
+    "amqplib": "^0.5.5",
+    "egg": "^2.23.0",
+    "is-type-of": "^1.2.1",
+    "querystring": "^0.2.0",
+    "tslib": "^1.10.0",
+    "typedi": "^0.8.0"
+  },
+  "devDependencies": {
+    "typescript": "^3.6.3"
+  },
+  "main": "./dist.js",
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}
