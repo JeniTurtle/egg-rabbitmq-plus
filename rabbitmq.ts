@@ -221,8 +221,10 @@ class RabbitMQ extends EventEmitter {
   }
 
   async createBinding(queue, exchange) {
-    assert(queue.keys, 'rabbitmq routingKey 不能为空');
     await this.assertQueue(queue.name, queue.options);
+    if (!queue.keys) {
+      return;
+    }
     for (const index in queue.keys) {
       const key = queue.keys[index];
       await this.bindQueue(queue.name, exchange.name, key);
