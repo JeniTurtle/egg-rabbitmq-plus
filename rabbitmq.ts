@@ -80,6 +80,9 @@ class RabbitMQ extends EventEmitter {
       this._channel.on('error', error => this._onChannelError(error));
       this._channel.on('return', msg => this._onChannelReturn(msg));
       this._channel.on('drain', () => this._onChannelDrain());
+      await this.assertAllExchange();
+      await this.createAllBinding();
+      this.createAllConsumer();
       this.emit('ch_open', this._channel);
     } catch (err) {
       this.emit('error', err);
@@ -276,12 +279,6 @@ class RabbitMQ extends EventEmitter {
   async init() {
     await this.connect(); // 创建连接
     await this.createChannel(); // 创建channel
-    if (!this._channel) {
-      return;
-    }
-    await this.assertAllExchange();
-    await this.createAllBinding();
-    this.createAllConsumer();
   }
 
   async consumer(queue, fn, options) {
