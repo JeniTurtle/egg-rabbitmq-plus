@@ -149,7 +149,7 @@ class RabbitMQ extends EventEmitter {
     return this._channel.assertQueue(queue, options);
   }
 
-  bindQueue(queue, source, pattern, args = {}) {
+  bindQueue(queue, source, pattern?, args = {}) {
     if (!this._channel) {
       throw new Error('the channel is empty');
     }
@@ -185,7 +185,7 @@ class RabbitMQ extends EventEmitter {
     if (!this._channel) {
       throw new Error('the channel is empty');
     }
-    return this._channel.sendToQueue(queue, msg, options);
+    return this._channel.sendToQueue(queue, Buffer.from(JSON.stringify(msg)), options);
   }
 
   startConsume(queue, consumeFunc, options = {}) {
@@ -226,6 +226,7 @@ class RabbitMQ extends EventEmitter {
   async createBinding(queue, exchange) {
     await this.assertQueue(queue.name, queue.options);
     if (!queue.keys) {
+      await this.bindQueue(queue.name, exchange.name);
       return;
     }
     for (const index in queue.keys) {
