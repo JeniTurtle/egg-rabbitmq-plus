@@ -130,7 +130,7 @@ class RabbitMQ extends EventEmitter {
 
     Object.getOwnPropertyNames(this._exchanges).forEach(async index => {
       const exchange = this._exchanges[index];
-      exchangeList.push(await this.assertExchange(exchange.name, exchange.type, exchange.options));
+      exchangeList.push(this.assertExchange(exchange.name, exchange.type, exchange.options));
     });
     return await Promise.all(exchangeList);
   }
@@ -246,7 +246,7 @@ class RabbitMQ extends EventEmitter {
         const queue = this._queues[index];
         const exchange = exchangeConfig[queue.exchange];
         if (exchange) {
-          return await this.createBinding(queue, exchange);
+          return this.createBinding(queue, exchange);
         }
       }),
     );
@@ -262,15 +262,15 @@ class RabbitMQ extends EventEmitter {
       }
       await consumer(
         queue.name,
-        data => {
+        async data => {
           const promiseArray: any[] = [];
           callbackOptions.forEach(async option => {
             // 如果不设置routingKey，则不作判断
             if (option.queue === queue.name && (!option.routingKey || data.fields.routingKey === option.routingKey)) {
-              promiseArray.push(await option.callback(data));
+              promiseArray.push(option.callback(data));
             }
           });
-          Promise.all(promiseArray);
+          await Promise.all(promiseArray);
         },
         queue.subscribeOptions,
       );

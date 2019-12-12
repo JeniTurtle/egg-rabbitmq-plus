@@ -1,6 +1,6 @@
 {
   "name": "egg-rabbitmq-plus",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "rabbitmq plgin for egg.js",
   "eggPlugin": {
     "name": "rabbitmq"
