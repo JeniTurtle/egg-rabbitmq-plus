@@ -1,8 +1,11 @@
 import * as path from 'path';
-import { Application } from 'egg';
 import * as assert from 'assert';
+import * as uuidV1 from 'uuid/v1';
+import { Application } from 'egg';
 import is = require('is-type-of');
 import { Container } from 'typedi';
+
+const contextId = Symbol('rabbitMqConsumerContextId');
 
 export default app => {
   const dirs = app.loader.getLoadUnits().map(unit => path.join(unit.path, 'app/consumer'));
@@ -23,15 +26,16 @@ const initCtx = (target, ctx) => {
   target.app = ctx.app;
   target.config = ctx.app.config;
   target.service = ctx.service;
+  target[contextId] = ctx[contextId];
 };
 
 const injectContext = (obj, ctx) => {
   Object.getOwnPropertyNames(obj).map(prop => {
     if (obj[prop] && typeof obj[prop] === 'object') {
       const type = obj[prop].constructor;
-      if (Container.has(type) || Container.has(type.name)) {
-        injectContext(obj[prop], ctx);
+      if (obj[contextId] !== ctx[contextId] && (Container.has(type) || Container.has(type.name))) {
         initCtx(obj[prop], ctx);
+        injectContext(obj[prop], ctx);
       }
     }
   });
@@ -57,11 +61,12 @@ function getConsumerLoader(app: Application) {
         let subscribe;
         if (is.class(consumer)) {
           subscribe = ctx => async data => {
-            const s = Container.get<any>(consumer);
-            injectContext(s, ctx);
-            initCtx(s, ctx);
-            s.subscribe = app.toAsyncFunction(s.subscribe);
-            return s.subscribe(data);
+            ctx[contextId] = uuidV1();
+            const instance = Container.of(ctx[contextId]).get<any>(consumer);
+            injectContext(instance, ctx);
+            initCtx(instance, ctx);
+            instance.subscribe = app.toAsyncFunction(instance.subscribe);
+            return instance.subscribe(data);
           };
         } else {
           subscribe = () => app.toAsyncFunction(consumer.subscribe);
