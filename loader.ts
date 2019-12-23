@@ -3,9 +3,28 @@ import * as assert from 'assert';
 import * as uuidV1 from 'uuid/v1';
 import { Application } from 'egg';
 import is = require('is-type-of');
-import { Container } from 'typedi';
+import { Container, ContainerInstance } from 'typedi';
 
 const contextId = Symbol('rabbitMqConsumerContextId');
+
+Container.of = function (instanceId) {
+  if (instanceId === undefined)
+    // @ts-ignore
+    return this.globalInstance;
+  // @ts-ignore
+	var container = this.instances.find(function (instance) { return instance.id === instanceId; });
+	if (!container) {
+    container = new ContainerInstance(instanceId);
+    // @ts-ignore
+		container.services.push(...this.globalInstance.services.map(s => ({
+			...s,
+			value: s.global ? s.value : undefined
+    })));
+    // @ts-ignore
+		this.instances.push(container);
+	}
+	return container;
+};
 
 export default app => {
   const dirs = app.loader.getLoadUnits().map(unit => path.join(unit.path, 'app/consumer'));
