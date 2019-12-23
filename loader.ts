@@ -5,7 +5,7 @@ import { Application } from 'egg';
 import is = require('is-type-of');
 import { Container, ContainerInstance } from 'typedi';
 
-const contextId = Symbol('rabbitMqConsumerContextId');
+export const contextId = Symbol('rabbitMqConsumerContextId');
 
 Container.of = function (instanceId) {
   if (instanceId === undefined)
@@ -85,7 +85,9 @@ function getConsumerLoader(app: Application) {
             injectContext(instance, ctx);
             initCtx(instance, ctx);
             instance.subscribe = app.toAsyncFunction(instance.subscribe);
-            return instance.subscribe(data);
+            const ret = await instance.subscribe(data);
+            Container.reset(ctx[contextId]);
+            return ret
           };
         } else {
           subscribe = () => app.toAsyncFunction(consumer.subscribe);
