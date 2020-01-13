@@ -167,7 +167,7 @@ class RabbitMQ extends EventEmitter {
     message: string;
     options?: amqp.Options.Publish;
   }): boolean {
-    assert(exchange && key && message, 'exchange、routingKey、message参数不能为空');
+    assert(exchange && message, 'exchange或message参数不能为空');
     if (!this._channel) {
       throw new Error('the channel is empty');
     }
