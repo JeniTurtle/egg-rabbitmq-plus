@@ -53,8 +53,8 @@ const injectContext = (obj, ctx) => {
     if (obj[prop] && typeof obj[prop] === 'object') {
       const type = obj[prop].constructor;
       if (obj[contextId] !== ctx[contextId] && (Container.has(type) || Container.has(type.name))) {
-        initCtx(obj[prop], ctx);
         injectContext(obj[prop], ctx);
+        initCtx(obj[prop], ctx);
       }
     }
   });
