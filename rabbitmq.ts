@@ -164,14 +164,15 @@ class RabbitMQ extends EventEmitter {
   }: {
     exchange: string;
     key: string;
-    message: string;
+    message: object | string;
     options?: amqp.Options.Publish;
   }): boolean {
     assert(exchange && message, 'exchange或message参数不能为空');
     if (!this._channel) {
       throw new Error('the channel is empty');
     }
-    return this._channel.publish(exchange, key, Buffer.from(JSON.stringify(message)), { ...options });
+    const data = typeof message === 'string' ? message : JSON.stringify(message);
+    return this._channel.publish(exchange, key, Buffer.from(data), { ...options });
   }
 
   prefetch(count) {
